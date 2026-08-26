@@ -1,0 +1,5 @@
+entrypoints:
+  default: run.py
+  difficulty: difficulty_run.py
+  collectors: collectors_run.py
+  aggregate: aggregate_run.py
