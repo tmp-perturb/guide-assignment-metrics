@@ -275,14 +275,13 @@ def collect_extraction_shift(diff_tables, out):
 M5_CANON = ["pgmm_em", "crispat_pgmm_umi0", "crispat_2beta", "fishash", "umi_threshold_t3"]
 
 
-def _mismatch_one(entries, gex, gt_h5ad, guide_csv):
+def _mismatch_one(entries, gex, gt_h5ad, guide_csv, sym_map):
     """Phase-3 mismatch arbitration for ONE dataset/tool — union-NT across the
     canonical methods present (analyze_mismatch.py, verbatim). entries: {method: path}."""
     import h5py
     import anndata as ad
     EPS = 0.01
     BC_STD = re.compile(r'^([ACGT]{16})-(\d+)$')
-    sym_map = "/data/yunzliu/assignment_benchmark_starter/benchmark_output/gene_symbol_to_ensg.json"
     T1 = {lab: {k: v for k, v in _first_guide(p).items()} for lab, p in entries.items()}
 
     s2p, p2g, sg2gene, nt = {}, {}, {}, set()
@@ -392,7 +391,7 @@ def _mismatch_one(entries, gex, gt_h5ad, guide_csv):
     return result
 
 
-def collect_mismatch(entries, gex_by_ds, gt, guide_map, out):
+def collect_mismatch(entries, gex_by_ds, gt, guide_map, sym_map, out):
     """Phase-3 mismatch, grouped by dataset (tool). entries: [(dataset, method, path)]."""
     by_ds = defaultdict(dict)
     for ds, m, p in entries:
@@ -403,7 +402,7 @@ def collect_mismatch(entries, gex_by_ds, gt, guide_map, out):
         gx = gex_by_ds.get(ds) or (list(gex_by_ds.values())[0] if gex_by_ds else None)
         if gx is None:
             continue
-        result[ds] = _mismatch_one(m2p, gx, gt, guide_map)
+        result[ds] = _mismatch_one(m2p, gx, gt, guide_map, sym_map)
     payload = result[list(result)[0]] if len(result) == 1 else result
     json.dump(payload, open(out, "w"), indent=2)
     print(f"mismatch: {len(result)} dataset(s)")
@@ -441,6 +440,7 @@ def main():
     p.add_argument("--data.gex", default=None)
     p.add_argument("--data.gt_labels", default=None)
     p.add_argument("--data.guide_map", default=None)
+    p.add_argument("--data.gene_symbol_to_ensg", default=None)
     p.add_argument("--data.difficulty_table", action="append", default=[])
     p.add_argument("--assignments", action="append", default=[])
     p.add_argument("--assignments_dir", action="append", default=[])
@@ -461,6 +461,7 @@ def main():
                               [t for t in extra if t.endswith("_gex.h5ad")])
     gt = args.gt or getattr(args, "data.gt_labels")
     guide_map = args.guide_map or getattr(args, "data.guide_map")
+    sym_map = getattr(args, "data.gene_symbol_to_ensg")
 
     if args.collector == "jaccard":
         if len(entries) < 2:
@@ -471,9 +472,9 @@ def main():
             sys.exit("strat_jaccard needs difficulty tables and assignments")
         collect_strat_jaccard(entries, diff_by_ds, out)
     elif args.collector == "mismatch":
-        if not gex_by_ds or not gt or not guide_map:
-            sys.exit("mismatch needs gex + gt + guide_map")
-        collect_mismatch(entries, gex_by_ds, gt, guide_map, out)
+        if not gex_by_ds or not gt or not guide_map or not sym_map:
+            sys.exit("mismatch needs gex + gt + guide_map + gene_symbol_to_ensg")
+        collect_mismatch(entries, gex_by_ds, gt, guide_map, sym_map, out)
     else:
         collect_extraction_shift(diff_by_ds, out)
 

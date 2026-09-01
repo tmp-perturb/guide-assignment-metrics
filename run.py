@@ -681,7 +681,9 @@ def metric_mismatch(args, spec, out_json):
     gex = getattr(args, "data.gex")
     gt_h5ad = getattr(args, "data.gt_labels")
     guide_csv = getattr(args, "data.guide_map")
-    sym_map = "/data/yunzliu/assignment_benchmark_starter/benchmark_output/_gene_symbol_to_ensg.json"
+    sym_map = getattr(args, "data.gene_symbol_to_ensg")
+    if not sym_map:
+        sys.exit("metric 'mismatch' requires --data.gene_symbol_to_ensg")
     t0 = time.time()
 
     s2p, p2g = {}, {}
@@ -942,6 +944,7 @@ def main():
     p.add_argument("--data.spec", required=True)
     p.add_argument("--data.gex", default=None)
     p.add_argument("--data.difficulty_table", default=None)
+    p.add_argument("--data.gene_symbol_to_ensg", default=None)
     p.add_argument("--metric", required=True)
     args = p.parse_args()
 
