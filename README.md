@@ -1,6 +1,6 @@
 # guide-assignment-metrics
 
-Evaluation module for the [guide-assignment](https://github.com/yunzhe-liu/guide-assignment)
+Evaluation module for the [guide-assignment](https://github.com/tmp-perturb/guide-assignment)
 Omnibenchmark. Three entrypoints:
 
 | Entrypoint | Role |

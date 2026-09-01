@@ -9,9 +9,9 @@ line-for-line where the source is a top-level monolith (Papalexi Tier-1,
 construct set). This entrypoint parameterises the hard-coded reference paths with
 injected inputs and picks the per-method loader by auto-detecting the CSV schema.
 
-Implemented + parity-verified: tier1 (dual + single), kd (+nt_nt +pair), construct_set.
-Pending per-lineage refactor (vendored, raise at runtime): discovery, mismatch,
-strat_tier1, strat_mismatch_loc, capacity — see OMNIBENCHMARK_CONVERSION_PLAN.md.
+Implemented + parity-verified: tier1 (dual + single), kd (+nt_nt +pair), construct_set,
+stratified metrics, capacity, discovery, and mismatch. The mismatch metric and
+collector receive the gene-symbol→Ensembl mapping as an explicit plan input.
 
 Contract:
     --output_dir <dir> --name <node_id>
